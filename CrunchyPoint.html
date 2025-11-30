@@ -1,0 +1,2914 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Crunchy Point - Billing App</title>
+    <meta
+      name="description"
+      content="Billing app for Crunchy Point snacks and street food"
+    />
+    <meta name="theme-color" content="#f97316" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Crunchy Point" />
+
+    <!-- External Libraries (embed these for full offline support) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+    <!-- Cordova -->
+    <script src="cordova.js"></script>
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* ==================== CSS RESET & BASE ==================== */
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --background: #fdfaf7;
+        --foreground: #1c1917;
+        --card: #ffffff;
+        --card-foreground: #1c1917;
+        --primary: #f97316;
+        --primary-light: #fdba74;
+        --primary-dark: #ea580c;
+        --primary-foreground: #ffffff;
+        --secondary: #f5f0eb;
+        --secondary-foreground: #292524;
+        --muted: #f0ebe5;
+        --muted-foreground: #78716c;
+        --accent: #ef4444;
+        --accent-foreground: #ffffff;
+        --success: #22c55e;
+        --destructive: #ef4444;
+        --border: #e7e0d9;
+        --radius: 1rem;
+        --shadow-soft: 0 4px 24px -4px rgba(249, 115, 22, 0.15);
+        --shadow-card: 0 8px 32px -8px rgba(249, 115, 22, 0.12);
+        --shadow-glow: 0 0 40px rgba(249, 115, 22, 0.3);
+        --gradient-primary: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+        --gradient-warm: linear-gradient(180deg, #fdfaf7 0%, #f5ebe0 100%);
+      }
+
+      .dark {
+        --background: #1a1412;
+        --foreground: #faf5f0;
+        --card: #231c18;
+        --card-foreground: #faf5f0;
+        --primary: #fb923c;
+        --primary-light: #fdba74;
+        --primary-dark: #f97316;
+        --secondary: #2d2420;
+        --secondary-foreground: #e7e0d9;
+        --muted: #352d28;
+        --muted-foreground: #a8a29e;
+        --border: #3d3430;
+        --shadow-soft: 0 4px 24px -4px rgba(0, 0, 0, 0.4);
+        --shadow-card: 0 8px 32px -8px rgba(0, 0, 0, 0.4);
+        --shadow-glow: 0 0 40px rgba(251, 146, 60, 0.2);
+        --gradient-warm: linear-gradient(180deg, #1a1412 0%, #231c18 100%);
+      }
+
+      html {
+        font-family: "Poppins", -apple-system, BlinkMacSystemFont, sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        background: var(--gradient-warm);
+        color: var(--foreground);
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow-x: hidden;
+      }
+
+      /* ==================== UTILITY CLASSES ==================== */
+      .hidden {
+        display: none !important;
+      }
+      .flex {
+        display: flex;
+      }
+      .flex-col {
+        flex-direction: column;
+      }
+      .items-center {
+        align-items: center;
+      }
+      .justify-center {
+        justify-content: center;
+      }
+      .justify-between {
+        justify-content: space-between;
+      }
+      .gap-2 {
+        gap: 0.5rem;
+      }
+      .gap-3 {
+        gap: 0.75rem;
+      }
+      .gap-4 {
+        gap: 1rem;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .text-left {
+        text-align: left;
+      }
+      .text-right {
+        text-align: right;
+      }
+      .font-medium {
+        font-weight: 500;
+      }
+      .font-semibold {
+        font-weight: 600;
+      }
+      .font-bold {
+        font-weight: 700;
+      }
+      .text-xs {
+        font-size: 0.75rem;
+      }
+      .text-sm {
+        font-size: 0.875rem;
+      }
+      .text-lg {
+        font-size: 1.125rem;
+      }
+      .text-xl {
+        font-size: 1.25rem;
+      }
+      .text-2xl {
+        font-size: 1.5rem;
+      }
+      .text-3xl {
+        font-size: 1.875rem;
+      }
+      .text-5xl {
+        font-size: 3rem;
+      }
+      .text-6xl {
+        font-size: 3.75rem;
+      }
+      .w-full {
+        width: 100%;
+      }
+      .mb-2 {
+        margin-bottom: 0.5rem;
+      }
+      .mb-3 {
+        margin-bottom: 0.75rem;
+      }
+      .mb-4 {
+        margin-bottom: 1rem;
+      }
+      .mb-6 {
+        margin-bottom: 1.5rem;
+      }
+      .mt-1 {
+        margin-top: 0.25rem;
+      }
+      .mt-2 {
+        margin-top: 0.5rem;
+      }
+      .mt-4 {
+        margin-top: 1rem;
+      }
+      .mt-8 {
+        margin-top: 2rem;
+      }
+      .p-2 {
+        padding: 0.5rem;
+      }
+      .p-3 {
+        padding: 0.75rem;
+      }
+      .p-4 {
+        padding: 1rem;
+      }
+      .p-6 {
+        padding: 1.5rem;
+      }
+      .p-8 {
+        padding: 2rem;
+      }
+      .px-4 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      .px-6 {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+      .py-2 {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+      }
+      .py-3 {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+      }
+      .py-4 {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
+      .grid {
+        display: grid;
+      }
+      .grid-cols-2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .space-y-2 > * + * {
+        margin-top: 0.5rem;
+      }
+      .space-y-3 > * + * {
+        margin-top: 0.75rem;
+      }
+      .space-y-4 > * + * {
+        margin-top: 1rem;
+      }
+      .overflow-hidden {
+        overflow: hidden;
+      }
+      .overflow-y-auto {
+        overflow-y: auto;
+      }
+      .uppercase {
+        text-transform: uppercase;
+      }
+      .tracking-wider {
+        letter-spacing: 0.05em;
+      }
+      .border-t {
+        border-top: 1px solid var(--border);
+      }
+      .border-b {
+        border-bottom: 1px solid var(--border);
+      }
+      .pt-3 {
+        padding-top: 0.75rem;
+      }
+
+      /* ==================== COLOR UTILITIES ==================== */
+      .text-primary {
+        color: var(--primary);
+      }
+      .text-muted {
+        color: var(--muted-foreground);
+      }
+      .text-destructive {
+        color: var(--destructive);
+      }
+      .text-success {
+        color: var(--success);
+      }
+      .bg-primary {
+        background-color: var(--primary);
+      }
+      .bg-secondary {
+        background-color: var(--secondary);
+      }
+      .bg-card {
+        background-color: var(--card);
+      }
+      .bg-muted {
+        background-color: var(--muted);
+      }
+
+      .gradient-text {
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      /* ==================== COMPONENT STYLES ==================== */
+      .app-container {
+        min-height: 100vh;
+        min-height: 100dvh;
+        padding-bottom: 100px;
+        padding-top: env(safe-area-inset-top, 0);
+      }
+
+      .screen {
+        padding: 1.5rem 1rem;
+        animation: fadeIn 0.3s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes scaleIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      @keyframes pulseGlow {
+        0%,
+        100% {
+          box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+        }
+        50% {
+          box-shadow: 0 0 40px rgba(249, 115, 22, 0.6);
+        }
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      /* Glass Card */
+      .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: var(--radius);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: var(--shadow-card);
+      }
+
+      .dark .glass-card {
+        background: rgba(35, 28, 24, 0.8);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .glass-card-strong {
+        background: var(--card);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border-radius: var(--radius);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: var(--shadow-card);
+      }
+
+      .dark .glass-card-strong {
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+
+      /* Buttons */
+      .btn-primary {
+        background: var(--gradient-primary);
+        color: var(--primary-foreground);
+        border: none;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-soft);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-glow);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0) scale(0.98);
+      }
+
+      .btn-primary:disabled {
+        background: var(--muted);
+        color: var(--muted-foreground);
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      .btn-primary:disabled:hover {
+        transform: none;
+      }
+
+      .btn-glass {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: var(--foreground);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 0.75rem;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .dark .btn-glass {
+        background: rgba(35, 28, 24, 0.8);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+
+      .btn-glass:hover {
+        background: var(--secondary);
+        transform: translateY(-1px);
+      }
+
+      .btn-glass:active {
+        transform: scale(0.98);
+      }
+
+      .btn-danger {
+        background: var(--destructive);
+        color: white;
+        border: none;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        font-weight: 600;
+        font-size: 1.125rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn-danger:disabled {
+        background: var(--muted);
+        color: var(--muted-foreground);
+        cursor: not-allowed;
+      }
+
+      .btn-danger:not(:disabled):hover {
+        filter: brightness(1.1);
+      }
+
+      /* Quantity Button */
+      .quantity-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 0.75rem;
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        font-size: 1.25rem;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+      }
+
+      .quantity-btn:active {
+        transform: scale(0.9);
+      }
+
+      .quantity-btn:disabled {
+        background: var(--muted);
+        color: var(--muted-foreground);
+        cursor: not-allowed;
+      }
+
+      /* Input */
+      .input-glass {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        padding-left: 3rem;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        color: var(--foreground);
+        transition: all 0.3s ease;
+        font-family: inherit;
+      }
+
+      .input-glass::placeholder {
+        color: var(--muted-foreground);
+      }
+
+      .input-glass:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+      }
+
+      .dark .input-glass {
+        background: rgba(35, 28, 24, 0.5);
+      }
+
+      .input-wrapper {
+        position: relative;
+      }
+
+      .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted-foreground);
+      }
+
+      /* Stat Card */
+      .stat-card {
+        padding: 1rem;
+        transition: all 0.3s ease;
+        animation: slideUp 0.4s ease-out backwards;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-glow);
+      }
+
+      .stat-card.accent {
+        border-color: rgba(249, 115, 22, 0.3);
+      }
+
+      .stat-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .stat-icon.accent {
+        background: var(--gradient-primary);
+        color: white;
+      }
+
+      .stat-icon:not(.accent) {
+        background: var(--secondary);
+        color: var(--muted-foreground);
+      }
+
+      /* Item Card */
+      .item-card {
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        animation: slideUp 0.3s ease-out backwards;
+      }
+
+      .item-emoji {
+        font-size: 2rem;
+        margin-right: 0.75rem;
+      }
+
+      .quantity-display {
+        min-width: 2rem;
+        text-align: center;
+        font-weight: 600;
+        font-size: 1.125rem;
+      }
+
+      /* Bottom Navigation */
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-around;
+        padding: 0.75rem 0.5rem;
+        padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0));
+        border-radius: 1.5rem 1.5rem 0 0;
+        z-index: 100;
+      }
+
+      .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.5rem 1rem;
+        border-radius: 1rem;
+        border: none;
+        background: transparent;
+        color: var(--muted-foreground);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+
+      .nav-item.active {
+        color: var(--primary);
+        background: rgba(249, 115, 22, 0.1);
+      }
+
+      .nav-label {
+        font-size: 0.7rem;
+      }
+
+      /* Toast */
+      #toast-container {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        pointer-events: none;
+      }
+
+      .toast {
+        background: var(--card);
+        color: var(--foreground);
+        padding: 1rem 1.5rem;
+        border-radius: 1rem;
+        box-shadow: var(--shadow-card);
+        animation: slideUp 0.3s ease-out;
+        font-weight: 500;
+        max-width: 90vw;
+        text-align: center;
+      }
+
+      /* Modal */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        z-index: 200;
+        animation: fadeIn 0.2s ease-out;
+      }
+
+      .modal-content {
+        max-width: 400px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: scaleIn 0.3s ease-out;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .modal-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+      }
+
+      .modal-close {
+        width: 36px;
+        height: 36px;
+        border-radius: 0.75rem;
+        background: var(--secondary);
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted-foreground);
+        transition: all 0.2s ease;
+      }
+
+      .modal-close:hover {
+        background: var(--muted);
+        color: var(--foreground);
+      }
+
+      /* History */
+      .history-card {
+        overflow: hidden;
+      }
+
+      .history-header {
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+
+      .history-header:hover {
+        background: var(--secondary);
+      }
+
+      .history-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+      }
+
+      .history-content.expanded {
+        max-height: 2000px;
+      }
+
+      .history-inner {
+        padding: 0 1rem 1rem;
+      }
+
+      /* Shop Control Buttons */
+      .shop-btn {
+        padding: 1.5rem;
+        border-radius: 1rem;
+        font-weight: 600;
+        font-size: 1.125rem;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        border: none;
+      }
+
+      .shop-btn-open {
+        background: var(--gradient-primary);
+        color: white;
+        animation: pulseGlow 2s ease-in-out infinite;
+      }
+
+      .shop-btn-open:disabled {
+        background: var(--muted);
+        color: var(--muted-foreground);
+        animation: none;
+      }
+
+      .shop-btn-close {
+        background: var(--destructive);
+        color: white;
+      }
+
+      .shop-btn-close:disabled {
+        background: var(--muted);
+        color: var(--muted-foreground);
+      }
+
+      /* Toggle Switch */
+      .toggle-wrapper {
+        width: 56px;
+        height: 32px;
+        border-radius: 16px;
+        background: var(--secondary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .toggle-wrapper.active {
+        background: var(--primary);
+      }
+
+      .toggle-knob {
+        width: 24px;
+        height: 24px;
+        background: var(--card);
+        border-radius: 50%;
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .toggle-wrapper.active .toggle-knob {
+        left: 28px;
+      }
+
+      /* Emoji Picker */
+      .emoji-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .emoji-btn {
+        font-size: 1.5rem;
+        padding: 0.5rem;
+        border-radius: 0.75rem;
+        background: var(--secondary);
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .emoji-btn:hover {
+        background: var(--muted);
+      }
+
+      .emoji-btn.selected {
+        background: rgba(249, 115, 22, 0.2);
+        border-color: var(--primary);
+        transform: scale(1.1);
+      }
+
+      /* Empty State */
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 60vh;
+        text-align: center;
+      }
+
+      .empty-emoji {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+      }
+
+      /* Header with Logo */
+      .app-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+
+      .app-logo {
+        width: 48px;
+        height: 48px;
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .app-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .shop-status {
+        font-size: 0.875rem;
+        color: var(--muted-foreground);
+      }
+
+      .shop-status::before {
+        content: "";
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+      }
+
+      .shop-status.open::before {
+        background: var(--success);
+      }
+
+      .shop-status.closed::before {
+        background: var(--destructive);
+      }
+
+      /* Session Info */
+      .session-info {
+        margin-top: 1rem;
+      }
+
+      /* Bill Preview */
+      .bill-summary {
+        border-top: 1px dashed var(--border);
+        margin-top: 1rem;
+        padding-top: 1rem;
+      }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: var(--muted);
+        border-radius: 2px;
+      }
+
+      /* Input without icon */
+      .input-simple {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        color: var(--foreground);
+        transition: all 0.3s ease;
+        font-family: inherit;
+      }
+
+      .input-simple:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+      }
+
+      .dark .input-simple {
+        background: rgba(35, 28, 24, 0.5);
+      }
+
+      /* Animations */
+      .animate-delay-1 {
+        animation-delay: 0.1s;
+      }
+      .animate-delay-2 {
+        animation-delay: 0.2s;
+      }
+      .animate-delay-3 {
+        animation-delay: 0.3s;
+      }
+      .animate-delay-4 {
+        animation-delay: 0.4s;
+      }
+      .animate-delay-5 {
+        animation-delay: 0.5s;
+      }
+
+      /* Input Error State */
+      .input-error {
+        border-color: var(--destructive) !important;
+        animation: shake 0.3s ease-in-out;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-5px);
+        }
+        75% {
+          transform: translateX(5px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="app-container">
+      <!-- Screens will be rendered here by JavaScript -->
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- SVG Icons (inline for offline support) -->
+    <svg style="display: none">
+      <symbol
+        id="icon-home"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+        <polyline points="9,22 9,12 15,12 15,22" />
+      </symbol>
+      <symbol
+        id="icon-receipt"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path
+          d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"
+        />
+        <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
+        <path d="M12 17.5v-11" />
+      </symbol>
+      <symbol
+        id="icon-clock"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </symbol>
+      <symbol
+        id="icon-utensils"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+        <path d="M7 2v20" />
+        <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+      </symbol>
+      <symbol
+        id="icon-settings"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path
+          d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
+        />
+        <circle cx="12" cy="12" r="3" />
+      </symbol>
+      <symbol
+        id="icon-power"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M12 2v10" />
+        <path d="M18.4 6.6a9 9 0 1 1-12.77.04" />
+      </symbol>
+      <symbol
+        id="icon-rupee"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M6 3h12" />
+        <path d="M6 8h12" />
+        <path d="m6 13 8.5 8" />
+        <path d="M6 13h3" />
+        <path d="M9 13c6.667 0 6.667-10 0-10" />
+      </symbol>
+      <symbol
+        id="icon-sparkles"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path
+          d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"
+        />
+        <path d="M5 3v4" />
+        <path d="M19 17v4" />
+        <path d="M3 5h4" />
+        <path d="M17 19h4" />
+      </symbol>
+      <symbol
+        id="icon-store"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" />
+        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+        <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" />
+        <path d="M2 7h20" />
+        <path
+          d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"
+        />
+      </symbol>
+      <symbol
+        id="icon-plus"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M5 12h14" />
+        <path d="M12 5v14" />
+      </symbol>
+      <symbol
+        id="icon-minus"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M5 12h14" />
+      </symbol>
+      <symbol
+        id="icon-trash"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M3 6h18" />
+        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+        <line x1="10" x2="10" y1="11" y2="17" />
+        <line x1="14" x2="14" y1="11" y2="17" />
+      </symbol>
+      <symbol
+        id="icon-edit"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+        <path d="m15 5 4 4" />
+      </symbol>
+      <symbol
+        id="icon-x"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M18 6 6 18" />
+        <path d="m6 6 12 12" />
+      </symbol>
+      <symbol
+        id="icon-cart"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="8" cy="21" r="1" />
+        <circle cx="19" cy="21" r="1" />
+        <path
+          d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"
+        />
+      </symbol>
+      <symbol
+        id="icon-file"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+        <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+        <path d="M10 9H8" />
+        <path d="M16 13H8" />
+        <path d="M16 17H8" />
+      </symbol>
+      <symbol
+        id="icon-send"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m22 2-7 20-4-9-9-4Z" />
+        <path d="M22 2 11 13" />
+      </symbol>
+      <symbol
+        id="icon-user"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="8" r="5" />
+        <path d="M20 21a8 8 0 1 0-16 0" />
+      </symbol>
+      <symbol
+        id="icon-search"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.3-4.3" />
+      </symbol>
+      <symbol
+        id="icon-calendar"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M8 2v4" />
+        <path d="M16 2v4" />
+        <rect width="18" height="18" x="3" y="4" rx="2" />
+        <path d="M3 10h18" />
+      </symbol>
+      <symbol
+        id="icon-chevron-down"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m6 9 6 6 6-6" />
+      </symbol>
+      <symbol
+        id="icon-chevron-up"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m18 15-6-6-6 6" />
+      </symbol>
+      <symbol
+        id="icon-download"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" x2="12" y1="15" y2="3" />
+      </symbol>
+      <symbol
+        id="icon-upload"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="17 8 12 3 7 8" />
+        <line x1="12" x2="12" y1="3" y2="15" />
+      </symbol>
+      <symbol
+        id="icon-moon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+      </symbol>
+      <symbol
+        id="icon-sun"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2" />
+        <path d="M12 20v2" />
+        <path d="m4.93 4.93 1.41 1.41" />
+        <path d="m17.66 17.66 1.41 1.41" />
+        <path d="M2 12h2" />
+        <path d="M20 12h2" />
+        <path d="m6.34 17.66-1.41 1.41" />
+        <path d="m19.07 4.93-1.41 1.41" />
+      </symbol>
+      <symbol
+        id="icon-info"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 16v-4" />
+        <path d="M12 8h.01" />
+      </symbol>
+      <symbol
+        id="icon-heart"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path
+          d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
+        />
+      </symbol>
+    </svg>
+
+    <script>
+      // ==================== SOUND EFFECTS ====================
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      let audioCtx = null;
+
+      function playBillSaveSound() {
+        try {
+          if (!audioCtx) {
+            audioCtx = new AudioContext();
+          }
+
+          // Create a pleasant "cha-ching" cash register sound
+          const oscillator1 = audioCtx.createOscillator();
+          const oscillator2 = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+
+          oscillator1.connect(gainNode);
+          oscillator2.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+
+          // First tone - higher pitch
+          oscillator1.frequency.setValueAtTime(1200, audioCtx.currentTime);
+          oscillator1.frequency.setValueAtTime(
+            1400,
+            audioCtx.currentTime + 0.1
+          );
+          oscillator1.type = "sine";
+
+          // Second tone - creates the "ching" effect
+          oscillator2.frequency.setValueAtTime(
+            1800,
+            audioCtx.currentTime + 0.05
+          );
+          oscillator2.frequency.setValueAtTime(
+            2000,
+            audioCtx.currentTime + 0.15
+          );
+          oscillator2.type = "sine";
+
+          // Volume envelope
+          gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+          gainNode.gain.linearRampToValueAtTime(
+            0.3,
+            audioCtx.currentTime + 0.02
+          );
+          gainNode.gain.linearRampToValueAtTime(
+            0.2,
+            audioCtx.currentTime + 0.1
+          );
+          gainNode.gain.linearRampToValueAtTime(
+            0.3,
+            audioCtx.currentTime + 0.12
+          );
+          gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.4);
+
+          oscillator1.start(audioCtx.currentTime);
+          oscillator2.start(audioCtx.currentTime + 0.05);
+          oscillator1.stop(audioCtx.currentTime + 0.4);
+          oscillator2.stop(audioCtx.currentTime + 0.4);
+        } catch (e) {
+          console.log("Sound not supported");
+        }
+      }
+
+      // ==================== APP STATE ====================
+      const AppState = {
+        currentTab: "home",
+        menuItems: [],
+        bills: [],
+        sessions: [],
+        currentSession: null,
+        cart: [],
+        isDark: false,
+      };
+
+      const DEFAULT_ITEMS = [
+        { id: "1", name: "Bhel Puri", price: 30, emoji: "🥙" },
+
+        { id: "3", name: "Kurkure Bhel", price: 35, emoji: "🌶️" },
+      ];
+
+      const EMOJIS = [
+        "🥗",
+        "🫓",
+        "🌶️",
+        "🥙",
+        "🥛",
+        "🥔",
+        "🍿",
+        "🌮",
+        "🥜",
+        "🧅",
+        "🍋",
+        "🥒",
+      ];
+
+      // ==================== UTILITY FUNCTIONS ====================
+      function icon(name, size = 24) {
+        return `<svg width="${size}" height="${size}"><use href="#icon-${name}"/></svg>`;
+      }
+
+      function formatCurrency(amount) {
+        return "₹" + amount.toLocaleString("en-IN");
+      }
+
+      function formatTime(date) {
+        return date.toLocaleTimeString("en-IN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        });
+      }
+
+      function formatDate(date) {
+        return date.toLocaleDateString("en-IN", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      }
+
+      function generateId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+      }
+
+      // ==================== LOCAL STORAGE ====================
+      function saveToStorage(key, data) {
+        try {
+          localStorage.setItem("crunchy-" + key, JSON.stringify(data));
+        } catch (e) {
+          console.error("Storage error:", e);
+        }
+      }
+
+      function loadFromStorage(key, defaultValue) {
+        try {
+          const data = localStorage.getItem("crunchy-" + key);
+          return data ? JSON.parse(data) : defaultValue;
+        } catch (e) {
+          console.error("Storage error:", e);
+          return defaultValue;
+        }
+      }
+
+      function initializeState() {
+        AppState.menuItems = loadFromStorage("menu-items", DEFAULT_ITEMS);
+        AppState.bills = loadFromStorage("bills", []);
+        AppState.sessions = loadFromStorage("sessions", []);
+        AppState.currentSession = loadFromStorage("current-session", null);
+        AppState.cart = loadFromStorage("cart", []);
+
+        // Auto dark mode
+        const savedTheme = localStorage.getItem("crunchy-theme");
+        if (savedTheme) {
+          AppState.isDark = savedTheme === "dark";
+        } else {
+          const hour = new Date().getHours();
+          AppState.isDark = hour >= 19 || hour < 6;
+        }
+        applyTheme();
+      }
+
+      function saveState() {
+        saveToStorage("menu-items", AppState.menuItems);
+        saveToStorage("bills", AppState.bills);
+        saveToStorage("sessions", AppState.sessions);
+        saveToStorage("current-session", AppState.currentSession);
+        saveToStorage("cart", AppState.cart);
+      }
+
+      // ==================== THEME ====================
+      function applyTheme() {
+        if (AppState.isDark) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      }
+
+      function toggleTheme() {
+        AppState.isDark = !AppState.isDark;
+        localStorage.setItem(
+          "crunchy-theme",
+          AppState.isDark ? "dark" : "light"
+        );
+        localStorage.setItem("crunchy-theme-override", "true");
+        applyTheme();
+        render();
+      }
+
+      // ==================== TOAST ====================
+      function showToast(message) {
+        const container = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        toast.className = "toast";
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      }
+
+      // ==================== CONFETTI ====================
+      function triggerConfetti() {
+        if (typeof confetti === "function") {
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ["#f97316", "#ef4444", "#fbbf24", "#22c55e"],
+          });
+        }
+      }
+
+      // ==================== MODAL ====================
+      function showModal(title, content) {
+        const overlay = document.createElement("div");
+        overlay.className = "modal-overlay";
+        overlay.id = "modal-overlay";
+        overlay.innerHTML = `
+          <div class="modal-content glass-card-strong p-6">
+            <div class="modal-header">
+              <h2 class="modal-title">${title}</h2>
+              <button class="modal-close" onclick="closeModal()">${icon(
+                "x",
+                20
+              )}</button>
+            </div>
+            <div class="modal-body">${content}</div>
+          </div>
+        `;
+        overlay.addEventListener("click", (e) => {
+          if (e.target === overlay) closeModal();
+        });
+        document.body.appendChild(overlay);
+      }
+
+      function closeModal() {
+        const modal = document.getElementById("modal-overlay");
+        if (modal) modal.remove();
+      }
+
+      // ==================== TODAY'S STATS ====================
+      function getTodayStats() {
+        const today = new Date().toDateString();
+        const todayBills = AppState.bills.filter(
+          (bill) => new Date(bill.timestamp).toDateString() === today
+        );
+        return {
+          earnings: todayBills.reduce((sum, bill) => sum + bill.total, 0),
+          billCount: todayBills.length,
+          lastBill:
+            todayBills.length > 0 ? todayBills[todayBills.length - 1] : null,
+        };
+      }
+
+      function getBestItem() {
+        const itemCounts = {};
+        AppState.bills.forEach((bill) => {
+          bill.items.forEach((item) => {
+            itemCounts[item.name] =
+              (itemCounts[item.name] || 0) + item.quantity;
+          });
+        });
+        let bestItem = "N/A";
+        let maxCount = 0;
+        Object.entries(itemCounts).forEach(([name, count]) => {
+          if (count > maxCount) {
+            maxCount = count;
+            bestItem = name;
+          }
+        });
+        return bestItem;
+      }
+
+      // ==================== CART ====================
+      function getCartTotal() {
+        return AppState.cart.reduce(
+          (sum, item) => sum + item.price * item.quantity,
+          0
+        );
+      }
+
+      function addToCart(menuItem) {
+        const existing = AppState.cart.find((item) => item.id === menuItem.id);
+        if (existing) {
+          existing.quantity++;
+        } else {
+          AppState.cart.push({ ...menuItem, quantity: 1 });
+        }
+        saveState();
+        render();
+      }
+
+      function updateCartQuantity(itemId, delta) {
+        const item = AppState.cart.find((i) => i.id === itemId);
+        if (item) {
+          item.quantity += delta;
+          if (item.quantity <= 0) {
+            AppState.cart = AppState.cart.filter((i) => i.id !== itemId);
+          }
+        }
+        saveState();
+        render();
+      }
+
+      function clearCart() {
+        AppState.cart = [];
+        saveState();
+        render();
+      }
+
+      function getItemQuantity(itemId) {
+        const item = AppState.cart.find((i) => i.id === itemId);
+        return item ? item.quantity : 0;
+      }
+
+      // ==================== SHOP SESSION ====================
+      function openShop() {
+        const now = new Date();
+        AppState.currentSession = {
+          id: generateId(),
+          date: now.toDateString(),
+          openTime: formatTime(now),
+          isOpen: true,
+          totalEarnings: 0,
+        };
+        saveState();
+
+        showModal(
+          "",
+          `
+          <div class="text-center py-4">
+            <div class="text-6xl mb-4" style="animation: bounce 0.5s ease-out;">🚀</div>
+            <h3 class="text-2xl font-bold mb-2">Shop is Open!</h3>
+            <p class="text-muted mb-4">Aaj Cha Divas Changla Jaeil. Best of luck! 🌟</p>
+            <button class="btn-primary w-full" onclick="closeModal(); render();">Let's Go!</button>
+          </div>
+        `
+        );
+      }
+
+      function closeShop() {
+        const stats = getTodayStats();
+        showModal(
+          "Close Shop?",
+          `
+          <div class="text-center py-4">
+            <div class="text-5xl mb-4">🌙</div>
+            <p class="text-muted mb-4">Are you sure you want to close the shop for today?</p>
+            <div class="grid grid-cols-2 gap-3">
+              <button class="btn-glass" onclick="closeModal()">Cancel</button>
+              <button class="btn-primary" onclick="confirmCloseShop()">Yes, Close</button>
+            </div>
+          </div>
+        `
+        );
+      }
+
+      function confirmCloseShop() {
+        const stats = getTodayStats();
+
+        if (AppState.currentSession) {
+          AppState.currentSession.closeTime = formatTime(new Date());
+          AppState.currentSession.isOpen = false;
+          AppState.currentSession.totalEarnings = stats.earnings;
+          AppState.sessions.push(AppState.currentSession);
+          AppState.currentSession = null;
+        }
+        saveState();
+        closeModal();
+
+        showModal(
+          "Today's Summary",
+          `
+          <div class="space-y-4">
+            <div class="text-center py-2">
+              <div class="text-5xl mb-2">🎉</div>
+              <p class="text-lg font-medium">Great work today!</p>
+            </div>
+            <div class="glass-card p-4 space-y-3">
+              <div class="flex justify-between">
+                <span class="text-muted">Total Earnings</span>
+                <span class="font-bold gradient-text">${formatCurrency(
+                  stats.earnings
+                )}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-muted">Bills Made</span>
+                <span class="font-semibold">${stats.billCount}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-muted">Best Item</span>
+                <span class="font-semibold">${getBestItem()}</span>
+              </div>
+            </div>
+            <p class="text-center text-muted">See you tomorrow! 👋</p>
+            <button class="btn-primary w-full" onclick="closeModal(); render();">Done</button>
+          </div>
+        `
+        );
+      }
+
+      // ==================== BILLING ====================
+      function saveBill(customerName) {
+        if (AppState.cart.length === 0) {
+          showToast("Add items to the bill first!");
+          return;
+        }
+
+        // VALIDATION: Customer name is required
+        if (!customerName || customerName.trim() === "") {
+          showToast("⚠️ Please enter customer name to save bill like Shreya!");
+          const nameInput = document.getElementById("customer-name");
+          if (nameInput) {
+            nameInput.classList.add("input-error");
+            nameInput.focus();
+            setTimeout(() => nameInput.classList.remove("input-error"), 1000);
+          }
+          return;
+        }
+
+        const now = new Date();
+        const prevEarnings = getTodayStats().earnings;
+
+        const bill = {
+          id: generateId(),
+          customerName: customerName.trim(),
+          items: AppState.cart.map((item) => ({
+            id: item.id,
+            name: item.name,
+            emoji: item.emoji,
+            price: item.price,
+            quantity: item.quantity,
+          })),
+          total: getCartTotal(),
+          date: now.toLocaleDateString("en-IN"),
+          time: formatTime(now),
+          timestamp: now.getTime(),
+        };
+
+        AppState.bills.push(bill);
+
+        if (AppState.currentSession) {
+          AppState.currentSession.totalEarnings += bill.total;
+        }
+
+        // Play sound effect
+        playBillSaveSound();
+
+        // Check for confetti
+        const newTotal = prevEarnings + bill.total;
+        if (newTotal >= 2000 && prevEarnings < 2000) {
+          triggerConfetti();
+          showToast("🎉 Amazing! You crossed ₹2000 today!");
+        } else {
+          showToast("✅ Bill saved successfully!");
+        }
+
+        AppState.cart = [];
+        saveState();
+        closeModal();
+        render();
+      }
+
+      function generatePDF(bill) {
+        if (typeof jspdf === "undefined") {
+          showToast("PDF library not loaded");
+          return;
+        }
+
+        const { jsPDF } = jspdf;
+        const doc = new jsPDF();
+
+        // Load logo and add to PDF
+        const logoImg = new Image();
+        logoImg.crossOrigin = "anonymous";
+        logoImg.src = "/logo.png";
+
+        logoImg.onload = function () {
+          // Add logo centered at top
+          const logoWidth = 35;
+          const logoHeight = 35;
+          const logoX = (210 - logoWidth) / 2;
+          doc.addImage(logoImg, "PNG", logoX, 8, logoWidth, logoHeight);
+
+          doc.setFontSize(20);
+          doc.setFont("helvetica", "bold");
+          doc.text("Crunchy Point", 105, 50, { align: "center" });
+
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "normal");
+          doc.text("Snacks & Street Food", 105, 58, { align: "center" });
+
+          doc.setLineWidth(0.5);
+          doc.line(20, 65, 190, 65);
+
+          doc.setFontSize(12);
+          doc.text(`Date: ${bill.date}`, 20, 75);
+          doc.text(`Time: ${bill.time}`, 140, 75);
+          doc.text(`Customer: ${bill.customerName}`, 20, 85);
+
+          doc.setLineWidth(0.3);
+          doc.line(20, 92, 190, 92);
+          doc.setFont("helvetica", "bold");
+          doc.text("Item", 20, 100);
+          doc.text("Qty", 100, 100);
+          doc.text("Price", 130, 100);
+          doc.text("Total", 165, 100);
+          doc.line(20, 104, 190, 104);
+
+          doc.setFont("helvetica", "normal");
+          let y = 112;
+          bill.items.forEach((item) => {
+            doc.text(item.name, 20, y);
+            doc.text(item.quantity.toString(), 100, y);
+            doc.text(`₹${item.price}`, 130, y);
+            doc.text(`₹${item.price * item.quantity}`, 165, y);
+            y += 8;
+          });
+
+          doc.line(20, y + 2, 190, y + 2);
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(14);
+          doc.text(`Grand Total: ₹${bill.total}`, 165, y + 12, {
+            align: "right",
+          });
+
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "normal");
+          doc.text("Thank you for your visit!", 105, y + 30, {
+            align: "center",
+          });
+
+          doc.save(`bill_${bill.id}.pdf`);
+          showToast("PDF downloaded!");
+        };
+
+        logoImg.onerror = function () {
+          // Fallback without logo if image fails to load
+          doc.setFontSize(24);
+          doc.setFont("helvetica", "bold");
+          doc.text("Crunchy Point", 105, 20, { align: "center" });
+
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "normal");
+          doc.text("Snacks & Street Food", 105, 28, { align: "center" });
+
+          doc.setLineWidth(0.5);
+          doc.line(20, 35, 190, 35);
+
+          doc.setFontSize(12);
+          doc.text(`Date: ${bill.date}`, 20, 45);
+          doc.text(`Time: ${bill.time}`, 140, 45);
+          doc.text(`Customer: ${bill.customerName}`, 20, 55);
+
+          doc.setLineWidth(0.3);
+          doc.line(20, 62, 190, 62);
+          doc.setFont("helvetica", "bold");
+          doc.text("Item", 20, 70);
+          doc.text("Qty", 100, 70);
+          doc.text("Price", 130, 70);
+          doc.text("Total", 165, 70);
+          doc.line(20, 74, 190, 74);
+
+          doc.setFont("helvetica", "normal");
+          let y = 82;
+          bill.items.forEach((item) => {
+            doc.text(item.name, 20, y);
+            doc.text(item.quantity.toString(), 100, y);
+            doc.text(`₹${item.price}`, 130, y);
+            doc.text(`₹${item.price * item.quantity}`, 165, y);
+            y += 8;
+          });
+
+          doc.line(20, y + 2, 190, y + 2);
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(14);
+          doc.text(`Grand Total: ₹${bill.total}`, 165, y + 12, {
+            align: "right",
+          });
+
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "normal");
+          doc.text("Thank you for your visit!", 105, y + 30, {
+            align: "center",
+          });
+
+          doc.save(`bill_${bill.id}.pdf`);
+          showToast("PDF downloaded!");
+        };
+      }
+
+      function shareWhatsApp(bill) {
+        const itemsList = bill.items
+          .map(
+            (i) =>
+              `${i.emoji} ${i.name} x${i.quantity} = ₹${i.price * i.quantity}`
+          )
+          .join("\n");
+
+        const message =
+          `*🍿 Crunchy Point*\n\n` +
+          `Customer: ${bill.customerName}\n` +
+          `Date: ${bill.date}\n` +
+          `Time: ${bill.time}\n\n` +
+          `*Items:*\n${itemsList}\n\n` +
+          `*Total: ₹${bill.total}*\n\n` +
+          `Thank you for your visit! 🙏`;
+
+        const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        window.open(url, "_blank");
+      }
+
+      // ==================== ITEM MANAGEMENT ====================
+      function showAddItemModal(editItem = null) {
+        const title = editItem ? "Edit Item" : "Add New Item";
+        const item = editItem || { name: "", price: "", emoji: "🥗" };
+
+        showModal(
+          title,
+          `
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-2">Item Name</label>
+              <input type="text" id="item-name" class="input-simple" placeholder="e.g., Bhel Puri" value="${
+                item.name
+              }">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">Price (₹)</label>
+              <input type="number" id="item-price" class="input-simple" placeholder="e.g., 30" value="${
+                item.price
+              }">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">Emoji</label>
+              <div class="emoji-grid">
+                ${EMOJIS.map(
+                  (e) => `
+                  <button class="emoji-btn ${
+                    e === item.emoji ? "selected" : ""
+                  }" onclick="selectEmoji('${e}')">${e}</button>
+                `
+                ).join("")}
+              </div>
+              <input type="hidden" id="item-emoji" value="${item.emoji}">
+            </div>
+            <button class="btn-primary w-full" onclick="saveItem('${
+              editItem ? item.id : ""
+            }')">${editItem ? "Update" : "Add"} Item</button>
+          </div>
+        `
+        );
+      }
+
+      function selectEmoji(emoji) {
+        document
+          .querySelectorAll(".emoji-btn")
+          .forEach((btn) => btn.classList.remove("selected"));
+        event.target.classList.add("selected");
+        document.getElementById("item-emoji").value = emoji;
+      }
+
+      function saveItem(editId) {
+        const name = document.getElementById("item-name").value.trim();
+        const price = parseFloat(document.getElementById("item-price").value);
+        const emoji = document.getElementById("item-emoji").value;
+
+        if (!name || !price) {
+          showToast("Please fill all fields");
+          return;
+        }
+
+        if (editId) {
+          const item = AppState.menuItems.find((i) => i.id === editId);
+          if (item) {
+            item.name = name;
+            item.price = price;
+            item.emoji = emoji;
+          }
+          showToast("Item updated!");
+        } else {
+          AppState.menuItems.push({
+            id: generateId(),
+            name,
+            price,
+            emoji,
+          });
+          showToast("Item added!");
+        }
+
+        saveState();
+        closeModal();
+        render();
+      }
+
+      function deleteItem(id) {
+        if (confirm("Delete this item?")) {
+          AppState.menuItems = AppState.menuItems.filter((i) => i.id !== id);
+          saveState();
+          showToast("Item deleted!");
+          render();
+        }
+      }
+
+      function exportItems() {
+        const dataStr = JSON.stringify(AppState.menuItems, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "menu-items.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("Items exported!");
+      }
+
+      function importItems() {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".json";
+        input.onchange = (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              try {
+                AppState.menuItems = JSON.parse(e.target.result);
+                saveState();
+                showToast("Items imported!");
+                render();
+              } catch {
+                showToast("Invalid file format");
+              }
+            };
+            reader.readAsText(file);
+          }
+        };
+        input.click();
+      }
+
+      function exportAllData() {
+        const data = {
+          menuItems: AppState.menuItems,
+          bills: AppState.bills,
+          sessions: AppState.sessions,
+          exportDate: new Date().toISOString(),
+        };
+        const dataStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `crunchy-point-backup-${
+          new Date().toISOString().split("T")[0]
+        }.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("Backup downloaded!");
+      }
+
+      function clearAllData() {
+        if (
+          confirm("Are you sure? This will delete all your data permanently!")
+        ) {
+          localStorage.clear();
+          location.reload();
+        }
+      }
+
+      // ==================== HISTORY ====================
+      function getBillsByDate() {
+        const groups = {};
+        AppState.bills
+          .sort((a, b) => b.timestamp - a.timestamp)
+          .forEach((bill) => {
+            if (!groups[bill.date]) groups[bill.date] = [];
+            groups[bill.date].push(bill);
+          });
+        return groups;
+      }
+
+      function toggleDateExpand(date) {
+        const content = document.getElementById(
+          `date-${date.replace(/[^a-zA-Z0-9]/g, "")}`
+        );
+        if (content) {
+          content.classList.toggle("expanded");
+        }
+      }
+
+      function toggleBillExpand(billId) {
+        const content = document.getElementById(`bill-${billId}`);
+        if (content) {
+          content.classList.toggle("expanded");
+        }
+      }
+
+      // ==================== SCREENS ====================
+      function renderHomeScreen() {
+        const stats = getTodayStats();
+        const isOpen = AppState.currentSession?.isOpen;
+
+        return `
+          <div class="screen">
+            <div class="app-header">
+              <div class="app-logo">
+                <img src="/logo.png" alt="Crunchy Point Logo">
+              </div>
+              <div>
+                <h1 class="text-2xl font-bold">Crunchy Point</h1>
+                <p class="shop-status ${isOpen ? "open" : "closed"}">${
+          isOpen ? "Shop is Open" : "Shop is Closed"
+        }</p>
+              </div>
+            </div>
+
+            <div class="glass-card p-4 mb-6">
+              <div class="text-center">
+                <p id="live-time" class="text-3xl font-bold gradient-text">${formatTime(
+                  new Date()
+                )}</p>
+                <p class="text-sm text-muted mt-1">${formatDate(new Date())}</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <button class="shop-btn shop-btn-open" onclick="openShop()" ${
+                isOpen ? "disabled" : ""
+              }>
+                ${icon("power", 32)}
+                Open Shop
+              </button>
+              <button class="shop-btn shop-btn-close" onclick="closeShop()" ${
+                !isOpen ? "disabled" : ""
+              }>
+                ${icon("power", 32)}
+                Close Shop
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+              <div class="stat-card glass-card accent animate-delay-1" style="animation: slideUp 0.4s ease-out backwards;">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <p class="text-xs uppercase tracking-wider text-muted mb-1">Today's Earnings</p>
+                    <p class="text-2xl font-bold gradient-text">${formatCurrency(
+                      stats.earnings
+                    )}</p>
+                  </div>
+                  <div class="stat-icon accent">${icon("rupee", 20)}</div>
+                </div>
+              </div>
+              <div class="stat-card glass-card animate-delay-2" style="animation: slideUp 0.4s ease-out backwards;">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <p class="text-xs uppercase tracking-wider text-muted mb-1">Total Bills</p>
+                    <p class="text-2xl font-bold">${stats.billCount}</p>
+                  </div>
+                  <div class="stat-icon">${icon("receipt", 20)}</div>
+                </div>
+              </div>
+              <div class="stat-card glass-card animate-delay-3" style="animation: slideUp 0.4s ease-out backwards;">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <p class="text-xs uppercase tracking-wider text-muted mb-1">Last Bill</p>
+                    <p class="text-2xl font-bold">${
+                      stats.lastBill
+                        ? formatCurrency(stats.lastBill.total)
+                        : "N/A"
+                    }</p>
+                  </div>
+                  <div class="stat-icon">${icon("clock", 20)}</div>
+                </div>
+              </div>
+              <div class="stat-card glass-card animate-delay-4" style="animation: slideUp 0.4s ease-out backwards;">
+                <div class="flex items-start justify-between">
+                  <div>
+                    <p class="text-xs uppercase tracking-wider text-muted mb-1">Best Seller</p>
+                    <p class="text-2xl font-bold">${getBestItem()}</p>
+                  </div>
+                  <div class="stat-icon">${icon("sparkles", 20)}</div>
+                </div>
+              </div>
+            </div>
+
+            ${
+              isOpen
+                ? `
+              <div class="glass-card p-4 session-info">
+                <h3 class="font-semibold mb-2">Current Session</h3>
+                <p class="text-sm text-muted">Started at ${
+                  AppState.currentSession.openTime
+                }</p>
+                <p class="text-lg font-bold mt-2 gradient-text">Session Earnings: ${formatCurrency(
+                  AppState.currentSession.totalEarnings
+                )}</p>
+              </div>
+            `
+                : ""
+            }
+          </div>
+        `;
+      }
+
+      function renderBillingScreen() {
+        const isOpen = AppState.currentSession?.isOpen;
+        const cartTotal = getCartTotal();
+
+        if (!isOpen) {
+          return `
+            <div class="screen">
+              <div class="empty-state">
+                <div class="glass-card p-8 text-center">
+                  <div class="empty-emoji">🏪</div>
+                  <h2 class="text-xl font-bold mb-2">Shop is Closed</h2>
+                  <p class="text-muted">Open the shop first to start billing</p>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="screen">
+            <h1 class="text-2xl font-bold mb-4">Create Bill</h1>
+
+            <div class="input-wrapper mb-4">
+              <span class="input-icon">${icon("user", 20)}</span>
+              <input type="text" id="customer-name" class="input-glass" placeholder="Customer Name (Required)">
+            </div>
+
+            <div class="space-y-3 mb-6">
+              ${AppState.menuItems
+                .map((item, i) => {
+                  const qty = getItemQuantity(item.id);
+                  return `
+                  <div class="item-card glass-card" style="animation-delay: ${
+                    i * 0.05
+                  }s;">
+                    <div class="flex items-center">
+                      <span class="item-emoji">${item.emoji}</span>
+                      <div>
+                        <p class="font-medium">${item.name}</p>
+                        <p class="text-sm text-primary font-semibold">${formatCurrency(
+                          item.price
+                        )}</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      ${
+                        qty > 0
+                          ? `
+                        <button class="quantity-btn" onclick="updateCartQuantity('${
+                          item.id
+                        }', -1)">${icon("minus", 18)}</button>
+                        <span class="quantity-display">${qty}</span>
+                        <button class="quantity-btn" onclick="updateCartQuantity('${
+                          item.id
+                        }', 1)">${icon("plus", 18)}</button>
+                      `
+                          : `
+                        <button class="btn-primary py-2 px-4" onclick="addToCart(${JSON.stringify(
+                          item
+                        ).replace(/"/g, "&quot;")})">${icon(
+                              "plus",
+                              18
+                            )}</button>
+                      `
+                      }
+                    </div>
+                  </div>
+                `;
+                })
+                .join("")}
+            </div>
+
+            ${
+              AppState.cart.length > 0
+                ? `
+              <div class="glass-card-strong p-4 mb-4">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center gap-2">
+                    <span class="text-primary">${icon("cart", 20)}</span>
+                    <span class="font-semibold">Cart (${
+                      AppState.cart.length
+                    } items)</span>
+                  </div>
+                  <button class="p-2 text-destructive" onclick="clearCart()">${icon(
+                    "trash",
+                    18
+                  )}</button>
+                </div>
+                <div class="space-y-2 mb-4">
+                  ${AppState.cart
+                    .map(
+                      (item) => `
+                    <div class="flex justify-between text-sm">
+                      <span>${item.emoji} ${item.name} x${item.quantity}</span>
+                      <span class="font-medium">${formatCurrency(
+                        item.price * item.quantity
+                      )}</span>
+                    </div>
+                  `
+                    )
+                    .join("")}
+                </div>
+                <div class="border-t pt-3 flex justify-between items-center">
+                  <span class="font-bold text-lg">Total</span>
+                  <span class="text-2xl font-bold gradient-text">${formatCurrency(
+                    cartTotal
+                  )}</span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <button class="btn-glass" onclick="showBillPreview()">${icon(
+                  "file",
+                  18
+                )} Preview</button>
+                <button class="btn-primary" onclick="saveBill(document.getElementById('customer-name').value)">Save Bill</button>
+              </div>
+            `
+                : ""
+            }
+          </div>
+        `;
+      }
+
+      function showBillPreview() {
+        const customerName =
+          document.getElementById("customer-name").value || "";
+
+        // Check if customer name is empty
+        if (!customerName.trim()) {
+          showToast("⚠️ Please enter customer name first!");
+          const nameInput = document.getElementById("customer-name");
+          if (nameInput) {
+            nameInput.classList.add("input-error");
+            nameInput.focus();
+            setTimeout(() => nameInput.classList.remove("input-error"), 1000);
+          }
+          return;
+        }
+
+        const cartTotal = getCartTotal();
+        const now = new Date();
+
+        const previewBill = {
+          customerName: customerName.trim(),
+          items: AppState.cart,
+          total: cartTotal,
+          date: now.toLocaleDateString("en-IN"),
+          time: formatTime(now),
+        };
+
+        showModal(
+          "Bill Preview",
+          `
+          <div class="space-y-4">
+            <div class="text-center py-2">
+              <h3 class="text-xl font-bold">Crunchy Point</h3>
+              <p class="text-sm text-muted">${previewBill.date}</p>
+            </div>
+            <div class="glass-card p-4">
+              <p class="text-sm text-muted mb-3">Customer: ${
+                previewBill.customerName
+              }</p>
+              <div class="space-y-2 border-t pt-3">
+                ${previewBill.items
+                  .map(
+                    (item) => `
+                  <div class="flex justify-between">
+                    <span>${item.name} x${item.quantity}</span>
+                    <span>${formatCurrency(item.price * item.quantity)}</span>
+                  </div>
+                `
+                  )
+                  .join("")}
+              </div>
+              <div class="border-t mt-3 pt-3 flex justify-between font-bold text-lg">
+                <span>Total</span>
+                <span class="gradient-text">${formatCurrency(
+                  previewBill.total
+                )}</span>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <button class="btn-glass" onclick="generatePDFFromCart('${customerName.trim()}')">${icon(
+            "file",
+            18
+          )} PDF</button>
+              <button class="btn-primary" onclick="shareWhatsAppFromCart('${customerName.trim()}')">${icon(
+            "send",
+            18
+          )} WhatsApp</button>
+            </div>
+            <button class="btn-primary w-full" onclick="saveBill('${customerName.trim()}')">Save & Close</button>
+          </div>
+        `
+        );
+      }
+
+      function generatePDFFromCart(customerName) {
+        const now = new Date();
+        const bill = {
+          id: "preview",
+          customerName: customerName || "Guest",
+          items: AppState.cart,
+          total: getCartTotal(),
+          date: now.toLocaleDateString("en-IN"),
+          time: formatTime(now),
+        };
+        generatePDF(bill);
+      }
+
+      function shareWhatsAppFromCart(customerName) {
+        const now = new Date();
+        const bill = {
+          customerName: customerName || "Guest",
+          items: AppState.cart,
+          total: getCartTotal(),
+          date: now.toLocaleDateString("en-IN"),
+          time: formatTime(now),
+        };
+        shareWhatsApp(bill);
+      }
+
+      function renderHistoryScreen() {
+        if (AppState.bills.length === 0) {
+          return `
+            <div class="screen">
+              <h1 class="text-2xl font-bold mb-4">Bill History</h1>
+              <div class="empty-state">
+                <div class="glass-card p-8 text-center">
+                  <div class="empty-emoji">📋</div>
+                  <h2 class="text-xl font-bold mb-2">No Bills Yet</h2>
+                  <p class="text-muted">Start billing to see history here</p>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        const billsByDate = getBillsByDate();
+
+        return `
+          <div class="screen">
+            <h1 class="text-2xl font-bold mb-4">Bill History</h1>
+
+            <div class="input-wrapper mb-4">
+              <span class="input-icon">${icon("search", 20)}</span>
+              <input type="text" class="input-glass" placeholder="Search by name or date..." oninput="filterHistory(this.value)">
+            </div>
+
+            <div class="space-y-4" id="history-list">
+              ${Object.entries(billsByDate)
+                .map(([date, bills]) => {
+                  const dateId = date.replace(/[^a-zA-Z0-9]/g, "");
+                  const dayTotal = bills.reduce((sum, b) => sum + b.total, 0);
+                  return `
+                  <div class="history-card glass-card">
+                    <div class="history-header" onclick="toggleDateExpand('${date}')">
+                      <div class="flex items-center gap-3">
+                        <span class="text-primary">${icon(
+                          "calendar",
+                          20
+                        )}</span>
+                        <span class="font-semibold">${date}</span>
+                      </div>
+                      <div class="flex items-center gap-3">
+                        <div class="text-right">
+                          <p class="text-sm text-muted">${
+                            bills.length
+                          } bills</p>
+                          <p class="font-bold gradient-text">${formatCurrency(
+                            dayTotal
+                          )}</p>
+                        </div>
+                        ${icon("chevron-down", 20)}
+                      </div>
+                    </div>
+                    <div class="history-content" id="date-${dateId}">
+                      <div class="history-inner space-y-2">
+                        ${bills
+                          .map(
+                            (bill) => `
+                          <div class="glass-card overflow-hidden">
+                            <div class="p-3 flex justify-between items-center cursor-pointer" onclick="toggleBillExpand('${
+                              bill.id
+                            }')">
+                              <div>
+                                <p class="font-medium">${bill.customerName}</p>
+                                <p class="text-sm text-muted">${bill.time}</p>
+                              </div>
+                              <div class="flex items-center gap-2">
+                                <span class="font-bold">${formatCurrency(
+                                  bill.total
+                                )}</span>
+                                ${icon("chevron-down", 18)}
+                              </div>
+                            </div>
+                            <div class="history-content" id="bill-${bill.id}">
+                              <div class="px-3 pb-3 space-y-3">
+                                <div class="border-t pt-3 space-y-2">
+                                  ${bill.items
+                                    .map(
+                                      (item) => `
+                                    <div class="flex justify-between text-sm">
+                                      <span>${item.emoji} ${item.name} x${
+                                        item.quantity
+                                      }</span>
+                                      <span>${formatCurrency(
+                                        item.price * item.quantity
+                                      )}</span>
+                                    </div>
+                                  `
+                                    )
+                                    .join("")}
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                  <button class="btn-glass text-sm py-2" onclick="generatePDF(${JSON.stringify(
+                                    bill
+                                  ).replace(/"/g, "&quot;")})">${icon(
+                              "file",
+                              16
+                            )} PDF</button>
+                                  <button class="btn-primary text-sm py-2" onclick="shareWhatsApp(${JSON.stringify(
+                                    bill
+                                  ).replace(/"/g, "&quot;")})">${icon(
+                              "send",
+                              16
+                            )} Share</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        `
+                          )
+                          .join("")}
+                      </div>
+                    </div>
+                  </div>
+                `;
+                })
+                .join("")}
+            </div>
+          </div>
+        `;
+      }
+
+      function filterHistory(query) {
+        // Simple filter implementation
+        const historyList = document.getElementById("history-list");
+        if (!historyList) return;
+
+        const cards = historyList.querySelectorAll(".history-card");
+        cards.forEach((card) => {
+          const text = card.textContent.toLowerCase();
+          card.style.display = text.includes(query.toLowerCase())
+            ? "block"
+            : "none";
+        });
+      }
+
+      function renderItemsScreen() {
+        return `
+          <div class="screen">
+            <div class="flex justify-between items-center mb-4">
+              <h1 class="text-2xl font-bold">Menu Items</h1>
+              <button class="btn-primary" onclick="showAddItemModal()">
+                ${icon("plus", 18)} Add
+              </button>
+            </div>
+
+            <div class="flex gap-2 mb-4">
+              <button class="btn-glass flex-1" onclick="exportItems()">
+                ${icon("download", 18)} Export
+              </button>
+              <button class="btn-glass flex-1" onclick="importItems()">
+                ${icon("upload", 18)} Import
+              </button>
+            </div>
+
+            <div class="space-y-3">
+              ${AppState.menuItems
+                .map(
+                  (item) => `
+                <div class="item-card glass-card">
+                  <div class="flex items-center">
+                    <span class="item-emoji">${item.emoji}</span>
+                    <div>
+                      <p class="font-medium">${item.name}</p>
+                      <p class="text-sm text-primary font-semibold">${formatCurrency(
+                        item.price
+                      )}</p>
+                    </div>
+                  </div>
+                  <div class="flex gap-2">
+                    <button class="p-2 rounded-xl" style="background: rgba(249, 115, 22, 0.1);" onclick="showAddItemModal(${JSON.stringify(
+                      item
+                    ).replace(/"/g, "&quot;")})">${icon("edit", 18)}</button>
+                    <button class="p-2 rounded-xl text-destructive" style="background: rgba(239, 68, 68, 0.1);" onclick="deleteItem('${
+                      item.id
+                    }')">${icon("trash", 18)}</button>
+                  </div>
+                </div>
+              `
+                )
+                .join("")}
+            </div>
+          </div>
+        `;
+      }
+
+      function renderSettingsScreen() {
+        const stats = {
+          totalBills: AppState.bills.length,
+          totalEarnings: AppState.bills.reduce(
+            (sum, bill) => sum + bill.total,
+            0
+          ),
+          totalSessions: AppState.sessions.length,
+          menuItems: AppState.menuItems.length,
+        };
+
+        return `
+          <div class="screen">
+            <h1 class="text-2xl font-bold mb-6">Settings</h1>
+
+            <div class="glass-card p-4 mb-4">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  ${icon(AppState.isDark ? "moon" : "sun", 24)}
+                  <div>
+                    <p class="font-medium">Dark Mode</p>
+                    <p class="text-sm text-muted">${
+                      AppState.isDark ? "On" : "Off"
+                    } • Auto after 7 PM</p>
+                  </div>
+                </div>
+                <div class="toggle-wrapper ${
+                  AppState.isDark ? "active" : ""
+                }" onclick="toggleTheme()">
+                  <div class="toggle-knob"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-card p-4 mb-4">
+              <h3 class="font-semibold mb-3 flex items-center gap-2">${icon(
+                "info",
+                18
+              )} App Statistics</h3>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="text-center p-3 bg-secondary rounded-xl">
+                  <p class="text-2xl font-bold gradient-text">${
+                    stats.totalBills
+                  }</p>
+                  <p class="text-xs text-muted">Total Bills</p>
+                </div>
+                <div class="text-center p-3 bg-secondary rounded-xl">
+                  <p class="text-2xl font-bold gradient-text">${formatCurrency(
+                    stats.totalEarnings
+                  )}</p>
+                  <p class="text-xs text-muted">Total Earnings</p>
+                </div>
+                <div class="text-center p-3 bg-secondary rounded-xl">
+                  <p class="text-2xl font-bold">${stats.totalSessions}</p>
+                  <p class="text-xs text-muted">Sessions</p>
+                </div>
+                <div class="text-center p-3 bg-secondary rounded-xl">
+                  <p class="text-2xl font-bold">${stats.menuItems}</p>
+                  <p class="text-xs text-muted">Menu Items</p>
+                </div>
+              </div>
+            </div>
+
+            <button class="glass-card p-4 mb-4 w-full flex items-center gap-3 text-left" onclick="exportAllData()">
+              <span class="text-primary">${icon("download", 24)}</span>
+              <div>
+                <p class="font-medium">Backup Data</p>
+                <p class="text-sm text-muted">Download all your data as JSON</p>
+              </div>
+            </button>
+
+            <button class="glass-card p-4 mb-4 w-full flex items-center gap-3 text-left" style="border-color: rgba(239, 68, 68, 0.3);" onclick="clearAllData()">
+              <span class="text-destructive">${icon("trash", 24)}</span>
+              <div>
+                <p class="font-medium text-destructive">Clear All Data</p>
+                <p class="text-sm text-muted">This cannot be undone</p>
+              </div>
+            </button>
+
+            <div class="text-center mt-8">
+              <p class="text-sm text-muted flex items-center justify-center gap-1">
+                Made with <span class="text-accent">${icon(
+                  "heart",
+                  14
+                )}</span> for Street Food Vendors
+              </p>
+              <p class="text-xs text-muted mt-1">Crunchy Point v1.0.0</p>
+            </div>
+          </div>
+        `;
+      }
+
+      // ==================== NAVIGATION ====================
+      function renderBottomNav() {
+        const tabs = [
+          { id: "home", label: "Home", icon: "home" },
+          { id: "billing", label: "Billing", icon: "receipt" },
+          { id: "history", label: "History", icon: "clock" },
+          { id: "items", label: "Items", icon: "utensils" },
+          { id: "settings", label: "Settings", icon: "settings" },
+        ];
+
+        return `
+          <nav class="bottom-nav glass-card-strong">
+            ${tabs
+              .map(
+                (tab) => `
+              <button class="nav-item ${
+                AppState.currentTab === tab.id ? "active" : ""
+              }" onclick="setTab('${tab.id}')">
+                ${icon(tab.icon, 24)}
+                <span class="nav-label">${tab.label}</span>
+              </button>
+            `
+              )
+              .join("")}
+          </nav>
+        `;
+      }
+
+      function setTab(tab) {
+        AppState.currentTab = tab;
+        render();
+      }
+
+      // ==================== MAIN RENDER ====================
+      function render() {
+        const app = document.getElementById("app");
+        let screenContent = "";
+
+        switch (AppState.currentTab) {
+          case "home":
+            screenContent = renderHomeScreen();
+            break;
+          case "billing":
+            screenContent = renderBillingScreen();
+            break;
+          case "history":
+            screenContent = renderHistoryScreen();
+            break;
+          case "items":
+            screenContent = renderItemsScreen();
+            break;
+          case "settings":
+            screenContent = renderSettingsScreen();
+            break;
+        }
+
+        app.innerHTML = screenContent + renderBottomNav();
+
+        // Start live clock for home screen
+        if (AppState.currentTab === "home") {
+          startLiveClock();
+        }
+      }
+
+      // ==================== LIVE CLOCK ====================
+      let clockInterval;
+      function startLiveClock() {
+        if (clockInterval) clearInterval(clockInterval);
+        clockInterval = setInterval(() => {
+          const el = document.getElementById("live-time");
+          if (el) {
+            el.textContent = formatTime(new Date());
+          }
+        }, 1000);
+      }
+
+      // ==================== INITIALIZATION ====================
+      document.addEventListener("DOMContentLoaded", () => {
+        initializeState();
+        render();
+
+        // Auto dark mode check every minute
+        setInterval(() => {
+          if (!localStorage.getItem("crunchy-theme-override")) {
+            const hour = new Date().getHours();
+            const shouldBeDark = hour >= 19 || hour < 6;
+            if (shouldBeDark !== AppState.isDark) {
+              AppState.isDark = shouldBeDark;
+              applyTheme();
+              render();
+            }
+          }
+        }, 60000);
+      });
+
+      // Cordova device ready
+      document.addEventListener(
+        "deviceready",
+        () => {
+          console.log("Cordova ready");
+        },
+        false
+      );
+    </script>
+  </body>
+</html>
